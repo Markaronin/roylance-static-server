@@ -1,10 +1,12 @@
 use actix_files::Directory;
-use std::fs;
+use std::fs::{self};
+use std::path::{Path};
 use actix_web::{
     App, HttpRequest, HttpResponse, HttpServer, error, web::{Data, self}, dev::ServiceResponse, Responder,
 };
 use serde_json::json;
 use tinytemplate::TinyTemplate;
+use serde::{Deserialize};
 
 fn directory_renderer(
     dir: &Directory, 
@@ -48,8 +50,37 @@ fn directory_renderer(
     )
 }
 
-async fn create_new_directory() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
+fn strip_leading_slash(string: &str) -> String {
+    let mut chars = string.chars().peekable();
+    if chars.peek().map_or(false, |first_char| *first_char == '/') {
+        chars.next();
+    }
+    chars.collect()
+}
+
+#[derive(Deserialize, Debug)]
+struct CreateNewDirectoryRequestBody {
+    name: String,
+    current_directory: String,
+}
+async fn create_new_directory(req_body: String) -> impl Responder {
+    let possible_body = serde_json::from_str::<CreateNewDirectoryRequestBody>(&req_body);
+    if possible_body.is_err() {
+        return HttpResponse::BadRequest().finish();
+    }
+    let body = possible_body.unwrap();
+    if body.name.is_empty() {
+        return HttpResponse::BadRequest().finish();
+    }
+    let new_dir_path = Path::new(&std::env::current_dir().unwrap())
+        .join("files")
+        .join(strip_leading_slash(&body.current_directory))
+        .join(strip_leading_slash(&body.name));
+    let create_dir_result = fs::create_dir(new_dir_path);
+    if create_dir_result.is_err() {
+        return HttpResponse::InternalServerError().finish();
+    }
+    HttpResponse::Ok().finish()
 }
 
 
@@ -67,9 +98,9 @@ async fn main() -> std::io::Result<()> {
             )
             .service(
             actix_files::Files::new("/", "./files")
-                    .show_files_listing()
-                    .redirect_to_slash_directory()
-                    .files_listing_renderer(directory_renderer),
+                        .show_files_listing()
+                        .redirect_to_slash_directory()
+                        .files_listing_renderer(directory_renderer),
             )
     })
     .bind("127.0.0.1:8080")?
