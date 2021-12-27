@@ -8,7 +8,7 @@
 </head>
 <body>
     <h1>{path}</h1>
-    <ol>
+    <ol id="subfileList">
         {{ for subfile in subfiles }}
             <li>
                 <a href="{path}/{subfile}">{subfile}</a>
@@ -18,6 +18,11 @@
     <hr />
     <input id="newFolderName" type="text" placeholder="Folder Name" />
     <button id="createNewFolderButton">Create New Folder</button>
+    <br />
+    <input id="newFile" type="file" />
+    <input id="newFileName" type="text" placeholder="New File Name" />
+    <button id="uploadFileButton">Upload</button>
+    <br />
 
     <script src="/directory-page.js"></script>
 </body>
