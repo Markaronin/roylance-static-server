@@ -21,12 +21,8 @@ function addNewSubfolderListEntry(subfileName) {
 
 createNewFolderButton.onclick = () => {
     createNewFolderButton.disabled = true;
-    fetch('/admin/create-new-directory', {
-        "method": "PUT", 
-        "body": JSON.stringify({
-            "name": newFolderNameInput.value,
-            "current_directory": window.location.pathname,
-        }),
+    fetch(`${window.location.pathname}/${newFolderNameInput.value}`, {
+        "method": "POST",
     })
     .then((response) => {
         createNewFolderButton.disabled = false;
