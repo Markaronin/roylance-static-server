@@ -5,22 +5,53 @@ const newFileInput = document.getElementById('newFile');
 const newFileNameInput = document.getElementById('newFileName');
 const uploadFileButton = document.getElementById('uploadFileButton');
 
+function renderLinks() {
+    function getLink(subpath) {
+        const listElement = document.createElement('li');
+
+        const link = document.createElement('a');
+        link.setAttribute('href', getSubFileName(subpath));
+        link.innerText = subpath;
+        listElement.appendChild(link);
+
+        const spacerSpan = document.createElement('span');
+        spacerSpan.innerText = " - ";
+        listElement.appendChild(spacerSpan);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = "Delete";
+        deleteButton.onclick = () => deleteFile(subpath);
+        listElement.appendChild(deleteButton);
+
+        return listElement;
+    }
+    const links = data.sort().map(getLink);
+    subfileList.innerHTML = "";
+    subfileList.append(...links)
+}
+
 function getSubFileName(filename) {
     return `${window.location.pathname}/${filename}`.replace("//", "/")
 }
 
 function addNewSubfolderListEntry(subfileName) {
-    let subfileLink = subfileName;
-    if (window.location.pathname !== "/") {
-        subfileLink = `${window.location.pathname}/${subfileName}`;
-    }
-    const newLi = document.createElement('li');
-    const newAnchor = document.createElement('a');
-    newAnchor.innerText = subfileName;
-    newAnchor.setAttribute("href", subfileLink);
+    data.push(subfileName);
+    renderLinks();
+}
 
-    newLi.appendChild(newAnchor);
-    subfileList.appendChild(newLi);
+function deleteFile(subfileName) {
+    if (confirm(`Are you sure you want to delete ${subfileName}`)) {
+        fetch(getSubFileName(subfileName), {
+            "method": "DELETE",
+        })
+        .then((response) => {
+            if (!response.ok) {
+                alert("Error while deleting file")
+            }
+        })
+        data = data.filter(val => val !== subfileName);
+        renderLinks();
+    }
 }
 
 createNewFolderButton.onclick = () => {
@@ -62,3 +93,5 @@ uploadFileButton.onclick = () => {
         alert("File or name are invalid")
     }
 }
+
+renderLinks();

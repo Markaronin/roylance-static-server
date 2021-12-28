@@ -7,22 +7,23 @@
     <title>Directory</title>
 </head>
 <body>
+    <script>
+        let data = [
+        {{ for subfile in subfiles }}
+            "{subfile}",
+        {{ endfor }}
+        ];
+    </script>
     <h1>{path}</h1>
     <ol id="subfileList">
-        {{ for subfile in subfiles }}
-            <li>
-                <a href="{path}/{subfile}">{subfile}</a>
-            </li>
-        {{ endfor }}
     </ol>
     <hr />
     <input id="newFolderName" type="text" placeholder="Folder Name" />
     <button id="createNewFolderButton">Create New Folder</button>
-    <br />
+    <hr />
     <input id="newFile" type="file" />
     <input id="newFileName" type="text" placeholder="New File Name" />
     <button id="uploadFileButton">Upload</button>
-    <br />
 
     <script src="/directory-page.js"></script>
 </body>

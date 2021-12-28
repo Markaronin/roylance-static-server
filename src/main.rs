@@ -93,7 +93,7 @@ async fn delete_file(path: actix_web::web::Path<String>) -> impl Responder {
     }
 
     if fs::metadata(&deleted_file_path).unwrap().is_dir() {
-        fs::remove_dir(deleted_file_path).unwrap();
+        fs::remove_dir_all(deleted_file_path).unwrap();
     } else {
         fs::remove_file(deleted_file_path).unwrap();
     }
